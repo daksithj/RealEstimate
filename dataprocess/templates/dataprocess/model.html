@@ -1,0 +1,176 @@
+{% extends "dataprocess/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% load static %}
+
+
+     <link rel="stylesheet" type="text/css" href="{% static 'dataprocess/circle.css'%}">
+
+
+
+
+
+<div class = "row justify-content-center">
+     <div class="col-md-9 " id="card-home">
+    <div class="card ">
+  <div class="card-body  h-100">
+    <h1 class="display-4 text-center">Model Status</h1>
+      <div class="row pt-4 justify-content-center">
+    <h5 class="text-center"> Model last updated on:
+    </h5>
+      </div>
+            <div class="row justify-content-center">
+    <p class="text-center display-5">{{land.last_date}}
+    </p>
+      </div>
+
+
+
+
+
+    <div class="row pl-5">
+    <h5 class=" ">Land model
+    </h5>
+      </div>
+
+          <div class="row pl-5 pr-5">
+
+              <div class="col-md-4 pt-2">
+                  <div class="row pt-3">
+                  <div class="c100 p{{land.accuracy|floatformat:'0'}} blue big center">
+      <span>{{land.accuracy}}%</span>
+      <div class="slice">
+        <div class="bar"></div>
+        <div class="fill"></div>
+      </div>
+            </div>
+        </div>
+
+      <div class="row justify-content-center pt-2">
+            <p class="lead">Accuracy of the model</p>
+        </div>
+      </div>
+
+
+
+        <div class="col-md-4 pt-2">
+                  <div class="row pt-3">
+                  <div class="c100 p100 green big center">
+      <span>{{land.MAE}}</span>
+      <div class="slice">
+        <div class="bar"></div>
+        <div class="fill"></div>
+      </div>
+            </div>
+        </div>
+
+      <div class="row justify-content-center pt-2">
+            <p class="lead text-center">Mean Absolute Error (Degrees)</p>
+        </div>
+      </div>
+
+
+
+        <div class="col-md-4 pt-2">
+
+
+
+               <div class="row pt-2 justify-content-center">
+            <h1 class="txt-drkred">{{land.training_num}}</h1>
+        </div>
+
+      <div class="row justify-content-center">
+            <p class="lead text-center">Training data amount</p>
+        </div>
+
+                           <div class="row pt-1 justify-content-center">
+            <h1 class="txt-drkred">{{land.test_num}}</h1>
+        </div>
+
+      <div class="row justify-content-center">
+            <p class="lead text-center">Test data amount</p>
+        </div>
+
+      </div>
+
+  </div>
+
+
+
+
+          <div class="row pl-5">
+    <h5 class=" ">House model
+    </h5>
+      </div>
+
+          <div class="row pl-5 pr-5">
+
+              <div class="col-md-4 pt-2">
+                  <div class="row pt-3">
+                  <div class="c100 p{{house.accuracy|floatformat:'0'}} drk-or big center">
+      <span>{{house.accuracy}}%</span>
+      <div class="slice">
+        <div class="bar"></div>
+        <div class="fill"></div>
+      </div>
+            </div>
+        </div>
+
+      <div class="row justify-content-center pt-2">
+            <p class="lead">Accuracy of the model</p>
+        </div>
+      </div>
+
+
+
+        <div class="col-md-4 pt-2">
+                  <div class="row pt-3">
+                  <div class="c100 p100 orange big center">
+      <span>{{house.MAE}}</span>
+      <div class="slice">
+        <div class="bar"></div>
+        <div class="fill"></div>
+      </div>
+            </div>
+        </div>
+
+      <div class="row justify-content-center pt-2">
+            <p class="lead text-center">Mean Absolute Error (Degrees)</p>
+        </div>
+      </div>
+
+
+
+        <div class="col-md-4 pt-2">
+
+
+
+               <div class="row pt-2 justify-content-center">
+            <h1 class="txt-purp">{{house.training_num}}</h1>
+        </div>
+
+      <div class="row justify-content-center">
+            <p class="lead text-center">Training data amount</p>
+        </div>
+
+                           <div class="row pt-1 justify-content-center">
+            <h1 class="txt-purp">{{house.test_num}}</h1>
+        </div>
+
+      <div class="row justify-content-center">
+            <p class="lead text-center">Test data amount</p>
+        </div>
+
+      </div>
+
+  </div>
+
+
+
+</div>
+</div>
+</div>
+</div>
+
+
+{% endblock content %}

@@ -1,0 +1,150 @@
+{% extends "dataprocess/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+    <script type='text/javascript' src='https://www.gstatic.com/charts/loader.js'></script>
+
+
+
+
+<div class = "row justify-content-center">
+<div class="col-md-12">
+<div class="content-section">
+       <h1 class="display-4 text-center">Real estate market analysis</h1>
+
+     <div class="row justify-content-center pt-3 pb-4">
+
+                <p class="lead text-center">Importance of features of a property indicated as a percentage of contribution
+                to the value of the property. Use these features to identify value adding points to a property, which
+                can be used to identify the value of a property.</p>
+            </div>
+    <div class="row">
+        <div class ="col-md-6">
+
+                <canvas id="land-importance" width="100" height="70"></canvas>
+
+
+
+
+        </div>
+                <div class ="col-md-6">
+
+
+
+                 <canvas id="house-importance" width="100" height="70"></canvas>
+
+        </div>
+
+
+    </div>
+
+         <div class="row justify-content-center pt-3 pb-4">
+
+                <p class="lead text-center">Average per perch prices of lands in different parts of the country based on
+                the raw model data set. Zoom in with the magnifying glass to get a better view of concentrated areas. Bigger
+                markers indicate a higher average price.</p>
+            </div>
+    <div class="row justify-content-center">
+         <div id="chart_div" style="width: 900px; height: 500px;"></div>
+
+    </div>
+
+
+
+</div>
+</div>
+</div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+  <script type='text/javascript'>
+     google.charts.load('current', {
+       'packages': ['geochart'],
+       // Note: you will need to get a mapsApiKey for your project.
+       // See: https://developers.google.com/chart/interactive/docs/basic_load_libs#load-settings
+       'mapsApiKey': 'AIzaSyC4pgdGcQIgG4_Pf6I4hlYq2GrygqaAFgo'
+     });
+     google.charts.setOnLoadCallback(drawMarkersMap);
+
+      function drawMarkersMap() {
+      var data = google.visualization.arrayToDataTable([
+        ['Latitude',   'Longitude', 'Area'],
+        {%for loc in location%}
+        [{{loc.latitude}} , {{loc.longitude}}, {{loc.price}}],
+        {%endfor%}
+        [7.9656549,      80.7621798,    1285.31],
+        [6.7003907,      80.7621798,    500],
+        [6.7003907,      79.9014874,    5000]
+
+      ]);
+
+      var options = {
+        region: 'LK',
+        displayMode: 'markers',
+        colorAxis: {colors: ['#0A5E58', '#4110B0','yellow', '#AE0808']},
+        magnifyingGlass: {enable: true, zoomFactor: 20}
+      };
+
+      var chart = new google.visualization.GeoChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+    };
+
+
+
+    var ln_imp = document.getElementById('land-importance').getContext('2d');
+var land_importance = new Chart(ln_imp, {
+    type: 'bar',
+    data: {
+        labels: [{% for imp in land_imp %}'{{imp.feature}}',{% endfor %}],
+        datasets: [{
+            label: 'Importance of features of a land',
+            data: [{% for imp in land_imp %}{{imp.importance}}*100,{% endfor %}],
+            backgroundColor:'rgba(75, 192, 192, 0.4)',
+            borderColor:'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{scaleLabel: {
+        display: true,
+        labelString: 'Importance %'
+      },
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+
+
+    var house_imp = document.getElementById('house-importance').getContext('2d');
+var house_importance = new Chart(house_imp, {
+    type: 'bar',
+    data: {
+        labels: [{% for imp in house_imp %}'{{imp.feature}}',{% endfor %}],
+        datasets: [{
+            label: 'Importance of feature of a house',
+            data: [{% for imp in house_imp %}{{imp.importance}}*100,{% endfor %}],
+            backgroundColor:'rgba(54, 162, 235, 0.4)',
+            borderColor:'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{scaleLabel: {
+        display: true,
+        labelString: 'Importance %'
+      },
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+
+
+    </script>
+{% endblock content %}
+

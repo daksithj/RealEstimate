@@ -1,0 +1,40 @@
+{% extends "dataprocess/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+
+<div class = "row justify-content-center">
+     <div class="col-md-9 " id="card-home">
+    <div class="card ">
+  <div class="card-body  h-100">
+    <h1 class="display-4 text-center">Welcome to Real Estimate</h1>
+      <div class="row pt-4 justify-content-center">
+    <p class="lead text-center"> Use this tool to estimate the price of any real estate property
+    by entering all relevant information regarding the property. The
+        price approximation will be calculated using a machine learning
+        approach and will be based on the current available market prices.
+    </p>
+
+
+      </div>
+          <div class = "row justify-content-center pt-4 pb-4">
+              <div class="col-md-3 text-center">
+                   <a  class="btn btn-outline-info " href="{% url 'price-form' %}">Find Price Estimate</a>
+              </div>
+                          <div class="col-md-3 text-center">
+                   <a  class="btn btn-outline-info" href="{% url 'analysis' %}">Market Analysis</a>
+              </div>
+                            <div class="col-md-3 text-center">
+                   <a  class="btn btn-outline-info" href="{% url 'model' %}">Model Status</a>
+              </div>
+
+          </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+
+
+{% endblock content %}

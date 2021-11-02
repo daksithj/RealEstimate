@@ -1,0 +1,576 @@
+{% extends "dataprocess/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<h1 class="display-4 text-center mb-5">Enter new property</h1>
+<div class="alert alert-danger" id = "wrong-geo" style="display:none">
+  <strong>Danger!</strong> Incorrect or invalid address or geometric coordinates entered.
+</div>
+<div class="row equal">
+ <div class="col-md-6" style ="display:block" id="card-1">
+    <div class="card ">
+  <h5 class="card-header">Location</h5>
+  <div class="card-body  h-100">
+    <h5 class="card-title">Enter Address of the Real Estate Property</h5>
+      <div class="row pt-3">
+
+
+                <p class="font-weight-light pl-4">Enter the main city and road/lane the property is located</p>
+            </div>
+          <div class="row">
+
+                <div class="col-md-10">
+              <input type="text" class="form-control  ml-3" placeholder="Address" required="true" id="location-input">
+                </div>
+          </div>
+                <div class="col-md-11 text-right pt-4">
+                <button id="loc-button" name="singlebutton" type="button" class="btn btn-info btn-block" onclick="geocode();">Enter Address</button>
+                </div>
+
+      <div class="row pt-4 justify-content-center">  <p class="font-weight-light text-center pr-5">Or</p></div>
+
+
+  <div class="row pt-2">
+
+
+                <p class="font-weight-light pl-4">Enter the geometric coordinates</p>
+        </div>
+          <div class="row pl-3">
+
+            <div class="col">
+              <input type="text" class="form-control col-md-8" placeholder="Latitude" required="true" id="latitude-input">
+            </div>
+            <div class="col">
+              <input type="text" class="form-control col-md-8" placeholder="Longitude" required="true" id="longitude-input">
+            </div>
+          </div>
+                <div class="col-md-11 text-center pt-4 pb-4">
+                <button id="geo-button" name="singlebutton" type="button" class="btn btn-info btn-block" onclick="rev_geocode();">Enter Coordinates</button>
+                </div>
+
+
+
+  </div>
+</div>
+</div>
+
+
+<div class="col-md-6" style="display: none" id="card-2">
+    <div class="card">
+  <h5 class="card-header">Verify Location</h5>
+  <div class="card-body pt-3">
+    <h5 class="card-title" id ="address-text">Addresss</h5>
+      <div class="row">
+            <div class="col-md-4">
+                <p class="font-weight-light">Coordinates : </p>
+            </div>
+
+            <div class="col-md-6">
+                <p class="font-weight-light padding-0" id ="coordinates">Latitude , Longitude</p>
+            </div>
+
+      </div>
+      <div class="row">
+        <div class="col-md-12 " align="center">
+          <img src="" id="google-map">
+        </div>
+      </div>
+        <div class="col-md-11 text-center pt-4">
+            <button id="verify-button" name="singlebutton" type="button" class="btn btn-info btn-block" onclick="showforms();">Verify location</button>
+        </div>
+  </div>
+</div>
+</div>
+
+
+</div>
+
+
+
+<div class = "row justify-content-center">
+     <div class="col-md-9 "style = "display:none" id="card-select">
+    <div class="card ">
+  <h5 class="card-header">Bare Land or House Pricing?</h5>
+  <div class="card-body  h-100">
+    <h5 class="card-title">Choose to estimate price of a bare land or a house</h5>
+      <div class="row pt-4 justify-content-center">
+
+        <div class="btn-group btn-group-toggle " data-toggle="buttons">
+          <label class="btn btn-info btn-lg active">
+              <input type="radio" name="options" id="bare-land" autocomplete="off" onchange="landform();" checked><span class="pl-5 pr-5">Bare Land</span>
+          </label>
+          <label class="btn btn-info btn-lg">
+            <input type="radio" name="options" id="house" autocomplete="off" onchange="houseform();"> <span class="pl-5 pr-5">House</span>
+          </label>
+
+        </div>
+
+    </div>
+
+  </div>
+
+</div>
+</div>
+</div>
+
+<div class = "row justify-content-center pt-4">
+     <div class="col-md-9 "style = "display:none" id="card-land">
+    <div class="card ">
+  <h5 class="card-header">Bare Land Pricing</h5>
+  <div class="card-body  h-100">
+    <h5 class="card-title">Enter details of the land</h5>
+
+
+              <div class="row pt-3">
+
+            <form class="col-md-12 mt-2 ml-4" id="land-form" name="land-form" method="post">
+                {% csrf_token %}
+                <div class="row">
+                <div class="col-md-6">
+
+                                    <div class="row" style="display:none">
+                <input type="number"  class="form-control col-md-8" required="true" id="land-form-type" name = "form-type" value="1">
+                <input type="text"  class="form-control col-md-8" required="true" id="land-address" name = "address">
+                <input type="number" step="any" class="form-control col-md-8" required="true" id="land-latitude" name = "latitude">
+              <input type="number" step="any" class="form-control col-md-8" required="true" id="land-longitude" name = "longitude">
+
+          </div>
+
+
+
+                <p >Size of land (in Perches):</p>
+          <div class="row">
+            <div class="col">
+              <input type="number" step="0.01" min="1" max="5000" class="form-control col-md-8" name="land-land_size" placeholder="Land size" required="true" id="land-land_size">
+            </div>
+          </div>
+
+                <p class="pt-4">Any cultivation on the land:</p>
+           <div class="row pl-4">
+              <div class="custom-control custom-radio custom-control-inline">
+                      <input type="radio" id="land-bare" name="cultivation" class="custom-control-input" value="bare" checked>
+                      <label class="custom-control-label font-weight-light" for="land-bare">Empty land</label>
+              </div>
+              <div class="custom-control custom-radio custom-control-inline">
+                      <input type="radio" id="land-tea" name="cultivation" class="custom-control-input" value="tea">
+                      <label class="custom-control-label font-weight-light" for="land-tea">Tea</label>
+                </div>
+               <div class="custom-control custom-radio custom-control-inline">
+                      <input type="radio" id="land-coconut" name="cultivation" class="custom-control-input" value="coconut">
+                      <label class="custom-control-label font-weight-light" for="land-coconut">Coconut</label>
+                </div>
+
+           </div>
+                 <div class="row pl-4 pt-2">
+               <div class="custom-control custom-radio custom-control-inline">
+                      <input type="radio" id="land-cultivation" name="cultivation" class="custom-control-input" value="cultivation">
+                      <label class="custom-control-label font-weight-light" for="land-cultivation">Multiple or other cultivations</label>
+                </div>
+           </div>
+            </div>
+            <div class="col-md-6">
+            <p class="">Other optional features:</p>
+
+            <div class="row  pl-4">
+           <div class="custom-control custom-checkbox pt-2 pl-4">
+              <input type="checkbox" class="custom-control-input" id="land-beach" name="land-beach" value ="1">
+              <label class="custom-control-label font-weight-light" for="land-beach">Beachfront property</label>
+           </div>
+            </div>
+           <div class="row pt-3 pl-4">
+           <div class="custom-control custom-checkbox pt-2 pl-4">
+              <input type="checkbox" class="custom-control-input" id="land-utilities" name="land-utilities" value="1">
+              <label class="custom-control-label font-weight-light" for="land-utilities">Availability of electricity/water</label>
+           </div>
+            </div>
+           <div class="row pt-3 pl-4">
+           <div class="custom-control custom-checkbox pt-2 pl-4">
+              <input type="checkbox" class="custom-control-input" id="land-availability" name="land-availability" value="1">
+              <label class="custom-control-label font-weight-light" for="land-availability">Discounted price/Urgent sale</label>
+           </div>
+            </div>
+            </div>
+                </div>
+                <div class="row pt-3">
+                <div class="col-md-11 text-right pt-4">
+                <button id="land-button" name="land-button" type="submit" onclick="hideform();" class="btn btn-info btn-block">Calculate price estimate for the land</button>
+                </div>
+                </div>
+        </form>
+
+
+  </div>
+
+  </div>
+
+</div>
+</div>
+</div>
+
+
+<div class = "row justify-content-center pt-4">
+     <div class="col-md-9 "style = "display:none" id="card-house">
+    <div class="card ">
+  <h5 class="card-header">House Pricing</h5>
+  <div class="card-body  h-100">
+    <h5 class="card-title">Enter details of the house</h5>
+
+
+              <div class="row pt-3">
+
+            <form class="col-md-12 mt-2 ml-4" id="house-form" name="house-form" method="post">
+                {% csrf_token %}
+                <div class="row">
+
+                <div class="col-md-6">
+
+                 <div class="row" style="display:none">
+                     <input type="number"  class="form-control col-md-8" required="true" id="house-form-type" name = "form-type" value="2">
+                     <input type="text"  class="form-control col-md-8" required="true" id="house-address" name = "address">
+                <input type="number" step="any" class="form-control col-md-8" required="true" id="house-latitude" name = "latitude">
+              <input type="number" step="any" class="form-control col-md-8" required="true" id="house-longitude" name = "longitude">
+
+          </div>
+
+
+                <p >Size of land (in Perches):</p>
+          <div class="row">
+            <div class="col">
+              <input type="number" step="0.01" min="1" max="100" class="form-control col-md-8" placeholder="Land size" required="true" id="house-land_size" name = "house-land_size">
+            </div>
+          </div>
+
+           <p class="pt-3">Floor Area of the house (in Square feet):</p>
+          <div class="row">
+            <div class="col">
+              <input type="number" min="1" max="10000" class="form-control col-md-8" placeholder="Floor_area" required="true" id="house-floor_area" name = "house-floor_area">
+            </div>
+          </div>
+
+
+
+           <p class="pt-3">Number of bedrooms:</p>
+          <div class="row">
+            <div class="col">
+              <input type="number" min="1" max="9" class="form-control col-md-8" placeholder="Bedrooms" required="true" id="house-bedrooms" name = "house-bedrooms">
+            </div>
+          </div>
+
+                      <p class="pt-3">Number of bathrooms:</p>
+          <div class="row">
+            <div class="col">
+              <input type="number" min="1" max="9" class="form-control col-md-8" placeholder="Bathrooms" required="true" id="house-bathrooms" name = "house-bathrooms">
+            </div>
+          </div>
+
+                        <p class="pt-3">Number of vehicles that can be parked:</p>
+          <div class="row">
+            <div class="col">
+              <input type="number" min="1" max="6" class="form-control col-md-8"value="1" required="true" id="house-parking" name = "house-parking">
+            </div>
+          </div>
+
+                         <p class="pt-3">Number of floors:</p>
+          <div class="row">
+            <div class="col">
+              <input type="number" min="1" max="4" class="form-control col-md-8"value="1" required="true" id="house-floors" name = "house-floors">
+            </div>
+          </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <p class="">Utilities:</p>
+            <div class="row  pl-4">
+                <p class="">Mainline water </p>
+             <div class="custom-control custom-radio custom-control-inline ml-5">
+              <input type="radio" id="house-water-1" name="water" class="custom-control-input" value = "1" checked>
+              <label class="custom-control-label font-weight-light" for="house-water-1">Yes (Default)</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+              <input type="radio" id="house-water-2" name="water" class="custom-control-input" value="0">
+              <label class="custom-control-label font-weight-light" for="house-water-2">No</label>
+            </div>
+
+            </div>
+
+            <div class="row  pl-4">
+                <p class="">3-Phase electricity </p>
+             <div class="custom-control custom-radio custom-control-inline ml-4">
+              <input type="radio" id="house-electricity-1" name="electricity" class="custom-control-input" checked value="1">
+              <label class="custom-control-label font-weight-light" for="house-electricity-1">Yes (Default)</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+              <input type="radio" id="house-electricity-2" name="electricity" class="custom-control-input" value="0">
+              <label class="custom-control-label font-weight-light" for="house-electricity-2">No</label>
+            </div>
+
+            </div>
+                <div class="row  pl-4">
+                <p class="">Overhead water tank </p>
+             <div class="custom-control custom-radio custom-control-inline ml-1">
+              <input type="radio" id="house-overhead-1" name="overhead" class="custom-control-input" checked value="1">
+              <label class="custom-control-label font-weight-light" for="house-overhead-1">Yes (Default)</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+              <input type="radio" id="house-overhead-2" name="overhead" class="custom-control-input" value="0">
+              <label class="custom-control-label font-weight-light" for="house-overhead-2">No</label>
+            </div>
+
+            </div>
+                  <div class="row  pl-4">
+                <p class="">Fully furnished </p>
+             <div class="custom-control custom-radio custom-control-inline ml-5">
+              <input type="radio" id="house-furnished-1" name="furnished" class="custom-control-input" value="1" >
+              <label class="custom-control-label font-weight-light" for="house-furnished-1">Yes</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+              <input type="radio" id="house-furnished-2" name="furnished" class="custom-control-input"checked value="0">
+              <label class="custom-control-label font-weight-light" for="house-furnished-2">No (Default)</label>
+            </div>
+
+            </div>
+
+
+                <p class="">Garden:</p>
+            <div class="row  pl-4">
+
+             <div class="custom-control custom-checkbox custom-control-inline">
+              <input type="checkbox" id="house-p_garden" name="house-p_garden" class="custom-control-input" value="1">
+              <label class="custom-control-label font-weight-light" for="house-p_garden">Private Garden</label>
+            </div>
+            <div class="custom-control custom-checkbox custom-control-inline">
+              <input type="checkbox" id="house-roof_garden" name="house-roof_garden" class="custom-control-input" value="1">
+              <label class="custom-control-label font-weight-light" for="house-roof_garden">Roof top Garden</label>
+            </div>
+                <div class="custom-control custom-checkbox custom-control-inline mt-2">
+              <input type="checkbox" id="house-in_garden" name="house-in_garden" class="custom-control-input" value="1">
+              <label class="custom-control-label font-weight-light" for="house-in_garden">Indoor Garden</label>
+            </div>
+
+            </div>
+
+                            <p class="pt-3">Features:</p>
+            <div class="row  pl-4">
+
+             <div class="custom-control custom-checkbox custom-control-inline">
+              <input type="checkbox" id="house-hot_water" name="house-hot_water" class="custom-control-input" value="1">
+              <label class="custom-control-label font-weight-light" for="house-hot_water">Hot water</label>
+            </div>
+            <div class="custom-control custom-checkbox custom-control-inline">
+              <input type="checkbox" id="house-ac_rooms" name="house-ac_rooms" class="custom-control-input" value="1">
+              <label class="custom-control-label font-weight-light" for="house-ac_rooms">A/C rooms</label>
+            </div>
+                <div class="custom-control custom-checkbox custom-control-inline">
+              <input type="checkbox" id="house-garage" name="house-garage" class="custom-control-input" value="1">
+              <label class="custom-control-label font-weight-light" for="house-garage">Garage</label>
+            </div>
+                            <div class="custom-control custom-checkbox custom-control-inline pt-2">
+              <input type="checkbox" id="house-servant" name="house-servant" class="custom-control-input" value="1">
+              <label class="custom-control-label font-weight-light" for="house-servant">Servant rooms</label>
+            </div>
+                             <div class="custom-control custom-checkbox custom-control-inline pt-2">
+              <input type="checkbox" id="house-pool" name="house-pool" class="custom-control-input" value="1">
+              <label class="custom-control-label font-weight-light" for="house-pool">Swimming Pool</label>
+            </div>
+                <div class="custom-control custom-checkbox custom-control-inline pt-2">
+              <input type="checkbox" id="house-security" name="house-security" class="custom-control-input" value="1">
+              <label class="custom-control-label font-weight-light" for="house-security">24-hour Security/ Security system</label>
+            </div>
+
+            </div>
+                                        <p class="pt-3 ">House type:</p>
+            <div class="row  pl-4">
+
+             <div class="custom-control custom-checkbox custom-control-inline">
+              <input type="checkbox" id="house-luxury" name="house-luxury" class="custom-control-input" value="1">
+              <label class="custom-control-label font-weight-light" for="house-luxury">Luxury design</label>
+            </div>
+            <div class="custom-control custom-checkbox custom-control-inline">
+              <input type="checkbox" id="house-colonial" name="house-colonial" class="custom-control-input" value="1">
+              <label class="custom-control-label font-weight-light" for="house-colonial">Colonial architecture</label>
+            </div>
+                <div class="custom-control custom-checkbox custom-control-inline mt-2">
+              <input type="checkbox" id="house-front" name="house-front" class="custom-control-input" value="1">
+              <label class="custom-control-label font-weight-light" for="house-front">Beachfront/ Riverfront/ Lakefront</label>
+            </div>
+
+            </div>
+
+                </div>
+
+             </div>
+
+
+
+                <div class="row pt-3">
+                <div class="col-md-11 text-right pt-4">
+                <button id="house-button" name="singlebutton"  onclick="hideform();"  class="btn btn-info btn-block">Calculate price estimate for the house</button>
+                </div>
+                </div>
+
+        </form>
+
+  </div>
+
+  </div>
+
+</div>
+</div>
+</div>
+
+<div class = "row justify-content-center pt-4">
+     <div class="col-md-9 "style = "display:none" id="card-done">
+    <div class="card ">
+  <h5 class="card-header">Processing</h5>
+  <div class="card-body  h-100">
+    <h5 class="card-title">Please wait till the data is processed</h5>
+<div class="d-flex justify-content-center">
+  <div class="spinner-border" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>
+
+
+  </div>
+
+</div>
+</div>
+</div>
+
+<script>
+
+    function hideform(){
+
+        if (document.getElementById('land-form').checkValidity() || document.getElementById('house-form').checkValidity() ){
+        document.getElementById('card-house').style.display ="none";
+        document.getElementById('card-land').style.display ="none";
+        document.getElementById('card-select').style.display ="none";
+        document.getElementById('card-done').style.display ="block";
+        }
+    }
+
+    function landform(){
+        document.getElementById('card-house').style.display ="none";
+        document.getElementById('card-land').style.display ="block";
+    }
+
+    function houseform(){
+
+            document.getElementById('card-land').style.display ="none";
+        document.getElementById('card-house').style.display ="block";
+    }
+
+
+    var api_key = "AIzaSyC4pgdGcQIgG4_Pf6I4hlYq2GrygqaAFgo";
+    //listen for submission
+
+    function geocode(e){
+
+
+
+        var location = document.getElementById('location-input').value;
+
+        axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
+            params:{
+                address:location,
+                key:api_key
+            }
+        })
+        .then(function(response){
+            //log full response
+            //console.log(response)
+            var formatted_address = (response.data.results[0].formatted_address);
+            var latitude = (response.data.results[0].geometry.location.lat);
+            var longitude = (response.data.results[0].geometry.location.lng);
+            verify_geo(latitude, longitude, formatted_address);
+        })
+        .catch(function(error){
+            console.log(error);
+             document.getElementById('wrong-geo').style.display ="block";
+        });
+    }
+
+        function rev_geocode(e){
+
+
+
+        var latitude = document.getElementById('latitude-input').value;
+        var longitude = document.getElementById('longitude-input').value;
+        coordinates = latitude+","+longitude;
+        axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
+            params:{
+                latlng:coordinates,
+                key:api_key
+            }
+        })
+        .then(function(response){
+            //log full response
+            //console.log(response)
+            var formatted_address = (response.data.results[0].formatted_address);
+            var lat = (response.data.results[0].geometry.location.lat);
+            var long = (response.data.results[0].geometry.location.lng);
+            verify_geo(lat, long, formatted_address);
+
+
+        })
+        .catch(function(error){
+            console.log(error);
+            document.getElementById('wrong-geo').style.display ="block";
+        });
+    }
+
+    function verify_geo(latitude, longitude, formatted_address){
+        var err = 0;
+
+        if (latitude < 5.96){err=1;}
+        if (latitude > 9.83){err=1;}
+        if (longitude < 79.6){err=1;}
+        if (longitude > 82.1){err=1;}
+
+        if (err ==1){
+             document.getElementById('wrong-geo').style.display ="block";
+        }else{
+             coordinates = latitude+","+longitude;
+             document.getElementById('address-text').innerHTML = formatted_address;
+             document.getElementById('coordinates').innerHTML = coordinates;
+             static_map(coordinates)
+        }
+    }
+
+    function static_map(coordinates){
+         document.getElementById('wrong-geo').style.display ="none";
+         document.getElementById('google-map').src = "https://maps.googleapis.com/maps/api/staticmap?center="+coordinates+"&zoom=17&size=300x300&key="+api_key;
+         var verifyCard = document.getElementById('card-2')
+            verifyCard.style.display ="block";
+    }
+
+    function showforms(){
+            var str = document.getElementById('coordinates').innerHTML;
+            var temp = new Array();
+            temp = str.split(",");
+
+            var address = document.getElementById('address-text').innerHTML;
+                   console.log(address)
+                document.getElementById('house-latitude').value =temp[0];
+                document.getElementById('land-latitude').value =temp[0];
+                document.getElementById('house-longitude').value =temp[1];
+                document.getElementById('land-longitude').value =temp[1];
+
+                document.getElementById('house-address').value =address;
+                document.getElementById('land-address').value =address;
+
+           document.getElementById('card-1').style.display ="none";
+         document.getElementById('card-2').style.display ="none";
+         document.getElementById('card-select').style.display ="block";
+         document.getElementById('card-land').style.display ="block";
+
+    }
+
+</script>
+
+{% endblock content %}

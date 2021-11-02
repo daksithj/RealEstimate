@@ -1,0 +1,228 @@
+{% extends "dataprocess/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+  <div class="row justify-content-center pb-3">
+    <div class="col-md-9 text-right">
+  <input class="btn btn-info" type='button' id='btn' value='Print Price Report' onclick='printDiv();'>
+      </div>
+ </div>
+<div class = "row justify-content-center" id="full-report">
+
+     <div class="col-md-9"  id="report-card">
+    <div class="card ">
+  {% if type == 1%}
+    <h5 class="card-header">Pricing report of land</h5>
+  {%else%}
+    <h5 class="card-header">Pricing report of house</h5>
+  {%endif%}
+  <div class="card-body  h-100">
+
+
+
+    <h5 class="card-title">{{address}}</h5>
+    <p class="font-weight-light">Coordinates :  <span id="coordinates">{{report.latitude}},{{report.longitude}}</span></p>
+
+      <div class="row">
+          <div class="col-md-6">
+            {% if type == 1%}
+
+            <div class = "row">
+              <div class="col-md-6">
+                <p> Land Size : </p>
+              </div>
+              <div class="col-md-6">
+                <p class="font-weight-light"> {{report.land_size}} Perches </p>
+              </div>
+            </div>
+
+
+
+
+
+            <div class = "row">
+               <div class="col-md-6">
+               <p> Land cultivation : </p>
+               </div>
+              <div class="col-md-6">
+                <p class="font-weight-light"> {{land_type}} </p>
+              </div>
+            </div>
+
+
+
+
+
+            <div class = "row">
+               <div class="col-md-6">
+                 <p> Land features : </p>
+               </div>
+
+              <div class="col-md-6">
+                   {%for feature in features%}
+                <p class="font-weight-light"> {{feature}} </p>
+                  {%endfor%}
+              </div>
+
+            </div>
+
+
+            {%else%}
+
+             <div class = "row">
+              <div class="col-md-6">
+                <p> Land Size : </p>
+              </div>
+              <div class="col-md-6">
+                <p class="font-weight-light"> {{report.land_size}} Perches </p>
+              </div>
+            </div>
+
+             <div class = "row">
+              <div class="col-md-6">
+                <p> Floor area : </p>
+              </div>
+              <div class="col-md-6">
+                <p class="font-weight-light"> {{report.floor_area}} Square ft. </p>
+              </div>
+            </div>
+
+            <div class = "row">
+              <div class="col-md-6">
+                <p> No. of bedrooms : </p>
+              </div>
+              <div class="col-md-6">
+                <p class="font-weight-light"> {{report.bedrooms}}  </p>
+              </div>
+            </div>
+
+            <div class = "row">
+              <div class="col-md-6">
+                <p> No. of bathrooms : </p>
+              </div>
+              <div class="col-md-6">
+                <p class="font-weight-light"> {{report.bathrooms}} </p>
+              </div>
+            </div>
+
+            <div class = "row">
+              <div class="col-md-6">
+                <p> No. of vehicles that can be parked : </p>
+              </div>
+              <div class="col-md-6">
+                <p class="font-weight-light"> {{report.parking}} </p>
+              </div>
+            </div>
+            <div class = "row">
+              <div class="col-md-6">
+                <p> No. of floors : </p>
+              </div>
+              <div class="col-md-6">
+                <p class="font-weight-light"> {{report.floors}} </p>
+              </div>
+            </div>
+
+            <div class = "row">
+              <div class="col-md-6">
+                <p> Utilities : </p>
+              </div>
+              <div class="col-md-6">
+                {%for utility in utilities%}
+                <p class="font-weight-light"> {{utility}} </p>
+                {%endfor%}
+              </div>
+            </div>
+
+            <div class = "row">
+              <div class="col-md-6">
+                <p> Gardens : </p>
+              </div>
+              <div class="col-md-6">
+                {%for garden in gardens%}
+                <p class="font-weight-light"> {{garden}} </p>
+                {%endfor%}
+              </div>
+            </div>
+
+            <div class = "row">
+              <div class="col-md-6">
+                <p> Optional features : </p>
+              </div>
+              <div class="col-md-6">
+                {%for option in options%}
+                <p class="font-weight-light"> {{option}} </p>
+                {%endfor%}
+              </div>
+            </div>
+            <div class = "row">
+              <div class="col-md-6">
+                <p> House type : </p>
+              </div>
+              <div class="col-md-6">
+                {%for loc in housetypes%}
+                <p class="font-weight-light"> {{loc}} </p>
+                {%endfor%}
+              </div>
+            </div>
+
+
+            {%endif%}
+          </div>
+
+        <div class="col-md-6 text-right">
+          <h5 >Estimated Price</h5>
+           <h1 >LKR {{price}}</h1>
+          <p class="font-weight-light">Rounded to the nearest LKR 100,000</p>
+
+        <div class="col-md-12 pt-5 " align="center">
+           <p >Map view of area:</p>
+          <img src="#" id="google-map">
+        </div>
+
+
+
+
+
+        </div>
+
+
+      </div>
+
+  </div>
+
+</div>
+</div>
+</div>
+
+<script>
+
+      static_map();
+
+      function static_map(){
+         var coordinates = document.getElementById('coordinates').innerHTML;
+         var api_key = "AIzaSyC4pgdGcQIgG4_Pf6I4hlYq2GrygqaAFgo";
+         document.getElementById('google-map').src = "https://maps.googleapis.com/maps/api/staticmap?center="+coordinates+"&zoom=17&size=300x300&key="+api_key;
+      }
+
+      function printDiv()
+{
+
+  var divToPrint=document.getElementById('report-card');
+
+  var newWin=window.open('','Print-Window');
+
+  newWin.document.open();
+
+ newWin.document.write('<html> <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> <body onload="window.print()">');
+  newWin.document.write(divToPrint.innerHTML+'</body></html>');
+
+  newWin.document.close();
+
+  setTimeout(function(){newWin.close();},10);
+
+}
+
+</script>
+
+
+{% endblock content %}
